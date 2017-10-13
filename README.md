@@ -1,2 +1,2 @@
-# Sichere-Verteilte_Systeme
+# Sichere_Verteilte_Systeme
 Master Medieninformatik - 1. Semester
