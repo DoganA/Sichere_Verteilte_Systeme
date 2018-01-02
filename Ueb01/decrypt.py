@@ -224,7 +224,7 @@ three_letter_words = get_words_with(3, cipher_without_spaces)
 the = collections.Counter(three_letter_words).most_common(1)[0][0]
 
 for idx, c in enumerate(the):
-    set_solution_for_letter(letters[c], the[idx])################## changed
+    set_solution_for_letter(letters[c], "the"[idx])
 
 for entry in sorted_list:
     print(entry.to_string())
