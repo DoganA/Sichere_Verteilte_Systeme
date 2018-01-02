@@ -1,10 +1,10 @@
 import string
 import collections
 
-import enchant #external library
+import enchant
 
 from utils import *
-#from constants import *
+from constants import *
 from letter import Letter
 
 enchant = enchant.request_dict("en_US")
@@ -16,30 +16,6 @@ transDict = {'a': "_", 'b': "_", 'c': "_", 'd': "_", 'e': "_", 'f': "_", 'g': "_
              'q': "_", 'r': "_", 's': "_", 't': "_", 'u': "_", 'v': "_", 'w': "_", 'x': "_",
              'y': "_", 'z': "_", " ": " "}
 
-FREQUENT_LETTERS = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'c', 'u', 'm', 'w',
-                    'f', 'g', 'y', 'p', 'b', 'v', 'k', 'j', 'x', 'q', 'z']
-
-LETTER_PERCENTAGE = {'e': 12.702, 't': 9.056, 'a': 8.167, 'o': 7.507, 'i': 6.966,
-                     'n': 6.749, 's': 6.327, 'h': 6.094, 'r': 5.987, 'd': 4.253,
-                     'l': 4.025, 'c': 2.782, 'u': 2.758, 'm': 2.406, 'w': 2.360,
-                     'f': 2.228, 'g': 2.015, 'y': 1.974, 'p': 1.929, 'b': 1.492,
-                     'v': 0.978, 'k': 0.772, 'j': 0.153, 'x': 0.150, 'q': 0.095, 'z': 0.074}
-
-# eher Ausschlusskriterien als Reihenfolge bzgl. Haeufigkeit
-ONE_LETTER_WORDS = ['a', 'i']
-
-TWO_LETTER_WORDS = ['he', 'at', 'it', 'if', 'in', 'is',
-                    'on', 'to', 'do', 'go', 'of', 'an',
-                    'so', 'of', 'up', 'as', 'my', 'me',
-                    'be', 'as', 'or', 'we', 'by', 'no', 'am', 'us']
-
-THREE_LETTER_WORDS = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'any',
-                      'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get',
-                      'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two',
-                      'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'too', 'use']
-
-INPUT_FILENAME = "samples/sample.txt"
-OUPUT_FILENAME = "samples/sample.txt_enc"
 
 ##########################################################################################
 ########################### functions ####################################################
@@ -47,14 +23,13 @@ OUPUT_FILENAME = "samples/sample.txt_enc"
 
 def decrypt(cipher, dictionary):
     word_text = ''
-    
+
     for character in cipher:
         if character in dictionary:
             word_text += dictionary[character]
         else:
             word_text += "_"
     return word_text
-
 
 def make_dependencies(eng_words, word):
     for c in word:
@@ -69,9 +44,9 @@ def make_dependencies(eng_words, word):
             for dep_index, dep in enumerate(word):
                 if dep_index != index:
                     character.add_dependency(match[index], dep, match[dep_index])
-        
 
-def do_job(letter, sol):
+
+def dojob(letter, sol):
     if sol in letter.candidates.keys() and letter.solution == "_":
 
         solution = sol
@@ -104,7 +79,9 @@ def set_solution_for_letter(letter, solution):
     for other_letter in sorted_list:
         if other_letter.letter == letter.letter:
             break
-        for candid in other_letter.candidates.keys():
+        other_letter_keys = list(other_letter.candidates.keys())
+        for candid in other_letter_keys:
+        #for candid in other_letter.candidates.keys():
             if letter.letter in other_letter.candidates[candid].keys():
                 if solution in other_letter.candidates[candid][letter.letter] or other_letter.candidates[candid][letter.letter] == {}:
                     # free candidate (dependency fulfilled)
@@ -128,29 +105,14 @@ def validate_requirements(tmp_word, enc_word, suggestion):
 
     return True
 
+
 def assign_letter(letter_from, letter_to):
-    print ("setting " + letter_from + " to " + letter_to);
+    print("setting " + letter_from + " to " + letter_to)
     transDict[letter_from] = letter_to
     letters_left.remove(letter_to)
     letters_brute_force.remove(letter_from)
 
-def print_entry():
-    for entry in letters.values():
-        print (entry.to_string())
-        
-def solve_dependency(letters):
-    # abhaengigkeiten wie 
-    # c = l wenn w = l
-    # loeschen
-    for l in letters:
-        cands_to_remove = []
-        for cand in letters[l].candidates.keys():
-            for dep in letters[l].candidates[cand].keys():
-                if letters[l].candidates[cand][dep] == set(cand):
-                    cands_to_remove.append(cand)
-    
-        for cand in cands_to_remove:
-            letters[l].remove_candidate(cand)
+
 ##########################################################################################
 ########################### go ###########################################################
 ##########################################################################################
@@ -200,13 +162,26 @@ for w2 in two:
 
 for w1 in one:
     make_dependencies(ONE_LETTER_WORDS, w1)
-###############################################################################
+##########################################
 
-print_entry()
 
-###############################################################################
-solve_dependency(letters)
-###############################################################################
+for entry in letters.values():
+    print(entry.to_string())
+
+##########################################
+# abhaengigkeiten wie 
+# c = l wenn w = l
+# loeschen
+for l in letters:
+    cands_to_remove = []
+    for cand in letters[l].candidates.keys():
+        for dep in letters[l].candidates[cand].keys():
+            if letters[l].candidates[cand][dep] == set(cand):
+                cands_to_remove.append(cand)
+
+    for cand in cands_to_remove:
+        letters[l].remove_candidate(cand)
+#############################################
 
 # wie oft kommt der Buchstabe vor?
 letter_frequency = sorted(letters.values(), key=lambda x: x.frequency, reverse=True)
@@ -224,7 +199,7 @@ three_letter_words = get_words_with(3, cipher_without_spaces)
 the = collections.Counter(three_letter_words).most_common(1)[0][0]
 
 for idx, c in enumerate(the):
-    set_solution_for_letter(letters[c], the[idx]) ################## changed
+    set_solution_for_letter(letters[c], the[idx])
 
 for entry in sorted_list:
     print(entry.to_string())
@@ -234,7 +209,7 @@ print
 for letter in sorted_list:
     sortedprob = sort(letter.candidates_probability)
     for fq in sortedprob:
-        do_job(letter, fq[0])
+        dojob(letter, fq[0])
 
 
 for entry in sorted_list:
@@ -248,8 +223,9 @@ print(decrypted)
 print
 print(read_file_to_string(INPUT_FILENAME))
 
-
-print("\n=============== PART2: dict mapping =================\n")
+print
+print("=============== PART2 : dict mapping =================")
+print
 
 letters_left = FREQUENT_LETTERS
 
@@ -276,12 +252,14 @@ print("words with missing letters: " + str(words_with_missing_letters))
 print("words with missing letters: " + str(encryped_words_with_missing_letters))
 print("Letter mapping missing: " + str(letters_brute_force))
 print(" ---------------------> " + str(letters_left))
+print
+
 
 # go through all words with blanks
 for idx, word in enumerate(words_with_missing_letters):
     encrypted_word = encryped_words_with_missing_letters[idx]
 
-    # identify g as the last letter of a word if the two next to last letters are "in" ("ing")
+    # identify g as the last letter of a word if the two next to last letters are "in"
     if "g" not in transDict.values() and word[len(word) - 1] == "_" and word[len(word) - 3: len(word) - 1] == "in":
         encrypted_g = encrypted_word[len(word) - 1]
         assign_letter(encrypted_g, "g")
@@ -305,7 +283,14 @@ for idx, word in enumerate(words_with_missing_letters):
                     assign_letter(encrypted_letter, char)
             break
 
-print("\n=============== SOLUTION ================= \n")
-print('cipher with spaces: \n', cipher_with_spaces)
-print('decryped text: \n', decrypt(cipher_with_spaces, transDict))
-print('given solution: \n', read_file_to_string(INPUT_FILENAME))
+
+
+print
+print("=============== SOLUTION =================")
+print
+print("cipher with spaces: \n'", cipher_with_spaces)
+print
+print("\n\ndecryped text :disco: \n", decrypt(cipher_with_spaces, transDict))
+print
+print("\n\ngiven solution: \n'", read_file_to_string(INPUT_FILENAME))
+print
