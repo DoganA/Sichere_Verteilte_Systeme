@@ -23,7 +23,7 @@ def encrypt(en_msg,p):
 def decrypt(dec_msg,p):
  
     key = p
-    x = new(key, mode= MODE_MODE_CFB, IV="12345678",)
+    x = new(key, mode= MODE_CFB, IV="12345678",)
     y =x.decrypt(dec_msg)
     return y
 

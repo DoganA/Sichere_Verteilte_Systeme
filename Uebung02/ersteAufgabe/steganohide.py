@@ -4,7 +4,7 @@ import sys
 
 arguments = sys.argv
 # overwrite arguments to test the program without arguments
-arguments = ["Text.txt", "Bild.bmp"]
+arguments = ["text.txt", "Bild.bmp"]
 
 # text.txt
 INPUT_TEXT = arguments[0]
